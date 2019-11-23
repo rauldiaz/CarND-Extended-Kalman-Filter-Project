@@ -9,6 +9,12 @@
 #include "measurement_package.h"
 #include "tools.h"
 
+#include <fl/model/transition/linear_transition.hpp>
+#include <fl/filter/gaussian/gaussian_filter.hpp>
+#include "extended_kalman_filter.hpp"
+
+using namespace fl;
+
 class FusionEKF {
  public:
   /**
@@ -31,6 +37,14 @@ class FusionEKF {
    */
   KalmanFilter ekf_;
 
+  typedef Eigen::VectorXd Input;
+  typedef Eigen::VectorXd Obsrv;
+  typedef Eigen::MatrixXd State;
+  typedef Eigen::MatrixXd Noise;
+  typedef LinearTransition<State, Noise, Input> Transition;
+  typedef ExtendedKalmanFilter<Transition> FilterAlgorithm;
+  typedef FilterInterface<FilterAlgorithm> Filter;
+
  private:
   // check whether the tracking toolbox was initialized or not (first measurement)
   bool is_initialized_;
@@ -44,6 +58,9 @@ class FusionEKF {
   Eigen::MatrixXd R_radar_;
   Eigen::MatrixXd H_laser_;
   Eigen::MatrixXd Hj_;
+
+  // FL
+  Filter filter_;
 };
 
 #endif // FusionEKF_H_

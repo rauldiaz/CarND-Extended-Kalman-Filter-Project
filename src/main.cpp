@@ -13,6 +13,7 @@ using std::vector;
 // for convenience
 using json = nlohmann::json;
 
+
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
@@ -34,6 +35,7 @@ int main() {
 
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
+  // EKFFusion fusionEKF;
 
   // used to compute the RMSE later
   Tools tools;
@@ -108,7 +110,7 @@ int main() {
           ground_truth.push_back(gt_values);
           
           // Call ProcessMeasurement(meas_package) for Kalman filter
-          fusionEKF.ProcessMeasurement(meas_package);       
+          fusionEKF.ProcessMeasurement(meas_package);   
 
           // Push the current estimated x,y positon from the Kalman filter's 
           //   state vector
