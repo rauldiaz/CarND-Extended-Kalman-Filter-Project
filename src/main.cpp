@@ -5,6 +5,8 @@
 #include "FusionEKF.h"
 #include "tools.h"
 
+#include "ekf_fusion.hpp"
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::string;
@@ -12,6 +14,7 @@ using std::vector;
 
 // for convenience
 using json = nlohmann::json;
+
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -34,6 +37,8 @@ int main() {
 
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
+  /* If the EKF filter from FL works, use this instead */
+  // EKFFusion fusionEKF;
 
   // used to compute the RMSE later
   Tools tools;
@@ -108,7 +113,7 @@ int main() {
           ground_truth.push_back(gt_values);
           
           // Call ProcessMeasurement(meas_package) for Kalman filter
-          fusionEKF.ProcessMeasurement(meas_package);       
+          fusionEKF.ProcessMeasurement(meas_package);   
 
           // Push the current estimated x,y positon from the Kalman filter's 
           //   state vector
@@ -125,6 +130,11 @@ int main() {
           estimate(2) = v1;
           estimate(3) = v2;
         
+          /* If the EKF from FL works, use this */
+          // estimate = fusionEKF.estimation();
+          // double p_x = estimate(0);
+          // double p_y = estimate(1);
+          
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
