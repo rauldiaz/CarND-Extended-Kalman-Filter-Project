@@ -18,7 +18,7 @@ using namespace std;
 
 class EKFFusion {
  public:
-  // FL
+  // FL typenames
   typedef Eigen::VectorXd Input;
   typedef Eigen::VectorXd Obsrv;
   typedef Eigen::VectorXd State;
@@ -53,11 +53,6 @@ class EKFFusion {
      */
 
     if (!is_initialized_) {
-      /**
-       * TODO: Initialize the state ekf_.x_ with the first measurement.
-       * TODO: Create the covariance matrix.
-       * You'll need to convert radar from polar to cartesian coordinates.
-       */
 
       // first measurement
       cout << "EKF: " << endl;
@@ -94,20 +89,12 @@ class EKFFusion {
      * Prediction
      */
 
-    /**
-     * TODO: Update the state transition matrix F according to the new elapsed time.
-     * Time is measured in seconds.
-     * TODO: Update the process noise covariance matrix.
-     * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
-     */
-
     double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
     previous_timestamp_ = measurement_pack.timestamp_;
 
     /**
      * Predict and update our belief
      */
-
     Belief new_belief;
     filter_.predict(belief_, Input(), new_belief);
     belief_.mean(new_belief.mean());
@@ -116,13 +103,6 @@ class EKFFusion {
     /**
      * Update
      */
-
-    /**
-     * TODO:
-     * - Use the sensor type to perform the update step.
-     * - Update the state and covariance matrices.
-     */
-
     filter_.update(belief_, measurement_pack.raw_measurements_, new_belief);
     belief_.mean(new_belief.mean());
     belief_.covariance(new_belief.covariance());
