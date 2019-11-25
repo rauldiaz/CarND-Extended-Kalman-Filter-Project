@@ -5,6 +5,8 @@
 #include "FusionEKF.h"
 #include "tools.h"
 
+#include "ekf_fusion.hpp"
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::string;
@@ -35,6 +37,7 @@ int main() {
 
   // Create a Kalman Filter instance
   FusionEKF fusionEKF;
+  /* If the EKF filter from FL works, use this instead */
   // EKFFusion fusionEKF;
 
   // used to compute the RMSE later
@@ -127,6 +130,11 @@ int main() {
           estimate(2) = v1;
           estimate(3) = v2;
         
+          /* If the EKF from FL works, use this */
+          // estimate = fusionEKF.estimation();
+          // double p_x = estimate(0);
+          // double p_y = estimate(1);
+          
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);

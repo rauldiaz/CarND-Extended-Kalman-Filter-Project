@@ -41,7 +41,7 @@ namespace fl
  */
 
 // ExtendedKalmanFilter filter forward declaration
-template <typename...> class ExtendedKalmanFilter;
+template <typename LinearTransition, typename LinearSensor> class ExtendedKalmanFilter;
 
 
 /**
@@ -52,10 +52,13 @@ template <typename...> class ExtendedKalmanFilter;
  */
 template <typename LinearTransition, typename LinearSensor>
 struct Traits<
-           ExtendedKalmanFilter<
-               LinearTransition,
-               LinearSensor>>
+        ExtendedKalmanFilter<
+            LinearTransition, 
+            LinearSensor>>
 {
+    typedef ExtendedKalmanFilter<LinearTransition, LinearSensor> Filter;
+    /* Required types */
+    typedef std::shared_ptr<Filter> Ptr;
     typedef typename LinearTransition::State State;
     typedef typename LinearTransition::Input Input;
     typedef typename LinearSensor::Obsrv Obsrv;
@@ -78,28 +81,24 @@ template <
     typename LinearTransition,
     typename LinearSensor
 >
-class ExtendedKalmanFilter<
-          LinearTransition,
-          LinearSensor>
+class ExtendedKalmanFilter
     :
     /* Implement the conceptual filter interface */
     public
     FilterInterface<
         ExtendedKalmanFilter<
-            typename ForwardLinearModelOnly<LinearTransition>::Type,
-            typename ForwardLinearModelOnly<LinearSensor>::Type>>
+            LinearTransition, 
+            LinearSensor
+        >
+    >
 {
 public:
-    typedef typename LinearTransition::State State;
-    typedef typename LinearTransition::Input Input;
-    typedef typename LinearSensor::Obsrv Obsrv;
 
-    /**
-     * \brief Represents the underlying distribution of the estimated state.
-     * In the case of the Kalman filter, the distribution is a simple Gaussian
-     * with the dimension of the \c State
-     */
-    typedef Gaussian<State> Belief;
+    typedef ExtendedKalmanFilter<LinearTransition, LinearSensor> This;
+    typedef typename Traits<This>::State State;
+    typedef typename Traits<This>::Input Input;
+    typedef typename Traits<This>::Obsrv Obsrv;
+    typedef typename Traits<This>::Belief Belief;
 
 public:
     /**
@@ -109,7 +108,7 @@ public:
      * \param sensor           Obsrv model instance
      */
     ExtendedKalmanFilter(const LinearTransition& transition,
-                   const LinearSensor& sensor)
+                         const LinearSensor& sensor)
         : transition_(transition),
           sensor_(sensor)
     { }
@@ -174,22 +173,22 @@ public:
      *
      * \f$ K = \bar{\Sigma}_{t}H^T (H\bar{\Sigma}_{t}H^T+R)^{-1}\f$.
      */
-    virtual void update(const Belief& predicted_belief,
-                            const Obsrv& y,
-                            Belief& posterior_belief)
-    {
-        auto H = sensor_.sensor_matrix();
-        auto R = sensor_.noise_covariance();
+    // virtual void update(const Belief& predicted_belief,
+    //                     const Obsrv& y,
+    //                     Belief& posterior_belief)
+    // {
+    //     auto H = sensor_.sensor_matrix();
+    //     auto R = sensor_.noise_covariance();
 
-        auto mean = predicted_belief.mean();
-        auto cov_xx = predicted_belief.covariance();
+    //     auto mean = predicted_belief.mean();
+    //     auto cov_xx = predicted_belief.covariance();
 
-        auto S = (H * cov_xx * H.transpose() + R).eval();
-        auto K = (cov_xx * H.transpose() * S.inverse()).eval();
+    //     auto S = (H * cov_xx * H.transpose() + R).eval();
+    //     auto K = (cov_xx * H.transpose() * S.inverse()).eval();
 
-        posterior_belief.mean(mean + K * (y - H * mean));
-        posterior_belief.covariance(cov_xx - K * H * cov_xx);
-    }
+    //     posterior_belief.mean(mean + K * (y - H * mean));
+    //     posterior_belief.covariance(cov_xx - K * H * cov_xx);
+    // }
 
     /**
      * \copydoc FilterInterface::update
@@ -214,11 +213,11 @@ public:
      * 
      * and
      * 
-     * \f$ \hat{y} = y - h(y)
+     * \f$ \hat{y} = y - h(y) \f$
      */
-    virtual void update_ekf(const Belief& predicted_belief,
-                            const Obsrv& y,
-                            Belief& posterior_belief)
+    virtual void update(const Belief& predicted_belief,
+                        const Obsrv& y,
+                        Belief& posterior_belief)
     {
         auto H = sensor_.sensor_matrix();
         auto R = sensor_.noise_covariance();
@@ -246,7 +245,7 @@ public:
 
     virtual Belief create_belief() const
     {
-        auto belief = Belief(transition().state_dimension());
+        auto belief = Belief(4);
         return belief;
     }
 
