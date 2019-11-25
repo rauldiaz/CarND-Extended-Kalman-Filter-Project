@@ -7,13 +7,52 @@ This project involves the Term 2 Simulator which can be downloaded [here](https:
 
 This repository includes two files that can be used to set up and install [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see the uWebSocketIO Starter Guide page in the classroom within the EKF Project lesson for the required version and installation scripts.
 
+## Installation and compilation instructions.
+
+This fork of the original repository contains additional dependencies, graciously provided by [Scaled Robotics](https://www.scaledrobotics.com/). In particular it makes (or tries to in my case) use a specialized filtering library, that can be found [here](https://bitbucket.org/scaledrobotics/fl/src/master/).
+
+This fork has only been tested in Ubuntu 18.04. The first step is to download the repository, including submodules:
+
+```
+git clone git@github.com:rauldiaz/CarND-Extended-Kalman-Filter-Project.git --recursive
+```
+
+Second, we install Miniconda from [here](https://docs.conda.io/en/latest/miniconda.html) to set up and activate a virtual environment:
+
+```
+conda env create -f environment.yml
+conda activate ekf
+```
+
+We can then install uWebSocketIO using the following command:
+
+```
+sudo sh install-linux.sh
+```
+
 Once the install for uWebSocketIO is complete, the main program can be built and run by doing the following from the project top directory.
 
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./ExtendedKF
+```
+mkdir build
+cd build
+cmake ..
+make
+./ExtendedKF
+```
+
+This will start the program that will compute the EKF as data from the simulator is being provided. In order to do so, we need to download the Term simulator (see above), and open it from a terminal using (for 64-bit):
+
+```
+./term2_sim.x86_64
+```
+
+We select the resolution and graphics quality and click 'OK'. We select the EKF project and press 'Start'. The EKF program will receive data from the similator and start computing the filter, showing the RMSE scores for every parameter.
+
+## TODO
+
+The FL-based filter does not work yet. Need to work on the extended_kalman_filter.hpp (where the filter resides), and the EKF driver written in ekf_fusion.hpp.
+
+## Tips
 
 Tips for setting up your environment can be found in the classroom lesson for this project.
 
